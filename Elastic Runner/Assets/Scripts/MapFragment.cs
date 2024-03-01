@@ -4,15 +4,43 @@ using UnityEngine;
 
 public class MapFragment : MonoBehaviour
 {
-    // Start is called before the first frame update
-    void Start()
+    [SerializeField]
+    Vector3 moveDirection;
+    [SerializeField]
+    float moveSpeed;
+    [SerializeField]
+    int overTimeRarity;
+    bool overTimeRaritySet = false;
+    public int OverTimeRarity
     {
-        
+        get { return overTimeRarity; }
+        set { if (overTimeRaritySet)
+                return;
+            overTimeRarity = value;
+            overTimeRaritySet = true;
+        }
     }
 
-    // Update is called once per frame
-    void Update()
+    public bool inPool = true;
+
+    private void Update()
     {
-        
+        if (inPool)
+            return;
+        Move();
     }
-}
+
+    void Move()
+    {
+        transform.position += moveSpeed * moveDirection * Time.deltaTime;
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        EndOfWay endOfWay = other.gameObject.GetComponent<EndOfWay>();
+        if (endOfWay == null)
+            return;
+
+        MapFragmentPool.instance.ReturnPooledFragment(this);
+    }
+} 
